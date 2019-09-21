@@ -6,7 +6,7 @@
 </template>
 
 <script>
-// //  做个请求测试
+//  做个请求测试
 // import request from '@/utils/request'
 
 // request({
@@ -20,9 +20,9 @@
 // }).then(res => {
 //   console.log(res.data)
 // })
-// export default {
-//   name: 'App' // 原则上组件都要有名字
-// }
+export default {
+  name: 'App' // 原则上组件都要有名字
+}
 </script>
 
 <style>
