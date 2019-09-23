@@ -21,6 +21,7 @@
       />
     </van-cell-group>
     <div class="login-btn">
+       <!-- 给登录按钮注册点击事件onLogin -->
       <van-button type="info" @click='onLogin'>登录</van-button>
     </div>
   </div>
@@ -28,32 +29,45 @@
 
 <script>
 // 使用封装好的请求模块
-import request from '@/utils/request'
-
+// import request from '@/utils/request'
+import { login } from '@/api/user'
 export default {
   name: 'LoginIndex',
   // 用户认证（登录注册）
   data () {
     return {
       user: {
-        mobile: '',
-        code: ''
+        // 方便测试写死数据
+        mobile: '15201230123',
+        code: '246810'
       }
     }
   },
 
   methods: {
+    // 点击登录事件onLogin
     async onLogin () {
       // 获取表单数据
       //  发送请求
       // 之前已经定义了变量request用来保存 axios.create实例（它的作用和axios是一样的）
-      const { data } = await request({ // 对象给对象赋值
-        method: 'POST',
-        url: '/app/v1_0/authorizations',
-        data: this.user
-      })
-      console.log(data)
-      //  根据结果进行后续处理
+      // 封装以下代码 不用写了
+      // const { data } = await request({ // 对象给对象赋值
+      //  method: 'POST',
+      //  url: '/app/v1_0/authorizations',
+      //  data: this.user
+      // })
+
+      try {
+        const { data } = await login(this.user)
+        console.log(data)
+        // 设置登录成功提示
+        this.$toast.success('登录成功')
+      } catch (err) {
+        // 条件判断 设置登录失败提示
+        if (err.response && err.response.status === 400) {
+          this.$toast.fail('登录失败，手机号或验证码错误')
+        }
+      }
     }
   }
 }
