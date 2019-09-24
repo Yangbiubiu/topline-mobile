@@ -4,28 +4,48 @@
     <van-nav-bar title="登录" />
     <!-- /导航栏 -->
 
-    <!-- 登录表单 -->
-    <van-cell-group>
-<!-- 绑定用户认证数据  -->
-      <van-field
-        required
-        clearable
-        label="手机号"
-        placeholder="请输入手机号"
-      />
-<!-- 绑定用户认证数据  -->
-      <van-field
-        type="password"
-        label="验证码"
-        placeholder="请输入验证码"
-        required
-      />
-    </van-cell-group>
-    <!-- /登录表单 -->
+<!-- ValidationProvider 是验证插件提供的一个全局组件
+      rules="secret" 配置验证规则
+      v-slot="{ errors }" 获取验证相关的结果参数
+      errors[0] 用来获取验证失败的错误消息-->
+
+<!-- <ValidationProvider rules="required|email" name="手机号" v-slot="{ errors }">
+        <input v-model="user.mobile" type="text">
+        <span>{{ errors[0] }}</span>
+     </ValidationProvider> -->
+  <!-- 登录表单 -->
+  <!-- ValidationObserver 组件会渲染成一个 form 表单
+      可以通过 ref 调用这个组件的方法：validate 来进行 js 验证-->
+  <ValidationObserver tag="form" ref="loginForm">
+  <!-- 把需要验证的字段使用 ValidationProvider 包裹起来
+    在其上面配置对应的验证规则等信息 phone为自定义一个验证规则 -->    <ValidationProvider tag="div" name="手机号" rules="required|phone" v-slot="{ errors }">
+      <!-- 要验证的表单字段手机号 -->
+        <van-field
+          v-model="user.mobile"
+          required
+          clearable
+          label="手机号"
+          placeholder="请输入手机号"
+          :error-message="errors[0]"
+        />
+      </ValidationProvider>
+      <ValidationProvider tag="div" name="验证码" rules="required" v-slot="{ errors }">
+        <!-- 要验证的表单字段验证码 -->
+        <van-field
+          v-model="user.code"
+          type="password"
+          label="验证码"
+          placeholder="请输入验证码"
+          required
+          :error-message="errors[0]"
+        />
+      </ValidationProvider>
+    </ValidationObserver>
+    <!-- 登录表单/ -->
     <!-- 登录按钮 -->
-     <div class="login-wrap">
+    <div class="login-wrap">
       <!-- 给登录按钮注册点击事件onLogin -->
-     <van-button type="info" :loading="isLoginLoading" @click="onLogin">登录</van-button>
+      <van-button type="info" :loading="isLoginLoading" @click="onLogin">登录</van-button>
     </div>
   </div>
 </template>
@@ -45,7 +65,7 @@ export default {
         code: '246810'
       },
       // 默认没有转圈圈样式
-      isLoginLoading: false// 控制登录按钮的 loading 状态(为了不让用户频繁点击登录按钮)
+      isLoginLoading: false // 控制登录按钮的 loading 状态(为了不让用户频繁点击登录按钮)
     }
   },
 
@@ -61,8 +81,16 @@ export default {
       //  url: '/app/v1_0/authorizations',
       //  data: this.user
       // })
-      this.isLoginLoading = true // 开始有转圈圈样式
+      this.isLoginLoading = true // 当提交登录的时候，设置 loading(开始有转圈圈样式）
       try {
+        // 表单验证
+        const isValid = await this.$refs.loginForm.validate()
+        // 验证失败，则什么都不做
+        if (!isValid) {
+          return
+        }
+        // 验证通过，提交表单
+        this.isLoginLoading = true
         const { data } = await login(this.user)
         console.log(data)
         // 设置登录成功提示
@@ -73,8 +101,8 @@ export default {
           this.$toast.fail('登录失败，手机号或验证码错误')
         }
       }
-      // 无论登录成功与否，都停止 loading
-      this.isLoginLoading = false // 停止有转圈圈样式
+      // 无论登录成功与否，都停止 loading(停止有转圈圈样式)
+      this.isLoginLoading = false
     }
   }
 }
