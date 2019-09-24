@@ -1,28 +1,31 @@
 <template>
-  <div>
+  <div class="login">
+    <!-- 导航栏 -->
     <van-nav-bar title="登录" />
-    <!-- van-cell-group 仅仅是提供了一个上下外边框，能看到包裹的区域 -->
+    <!-- /导航栏 -->
+
+    <!-- 登录表单 -->
     <van-cell-group>
-       <!-- 绑定用户认证数据  -->
+<!-- 绑定用户认证数据  -->
       <van-field
-       v-model="user.mobile"
         required
         clearable
-        label="手机"
+        label="手机号"
         placeholder="请输入手机号"
       />
-       <!-- 绑定用户认证数据  -->
+<!-- 绑定用户认证数据  -->
       <van-field
-       v-model="user.code"
         type="password"
         label="验证码"
         placeholder="请输入验证码"
         required
       />
     </van-cell-group>
-    <div class="login-btn">
-       <!-- 给登录按钮注册点击事件onLogin -->
-      <van-button type="info" @click='onLogin'>登录</van-button>
+    <!-- /登录表单 -->
+    <!-- 登录按钮 -->
+     <div class="login-wrap">
+      <!-- 给登录按钮注册点击事件onLogin -->
+     <van-button type="info" :loading="isLoginLoading" @click="onLogin">登录</van-button>
     </div>
   </div>
 </template>
@@ -40,7 +43,9 @@ export default {
         // 方便测试写死数据
         mobile: '15201230123',
         code: '246810'
-      }
+      },
+      // 默认没有转圈圈样式
+      isLoginLoading: false// 控制登录按钮的 loading 状态(为了不让用户频繁点击登录按钮)
     }
   },
 
@@ -56,7 +61,7 @@ export default {
       //  url: '/app/v1_0/authorizations',
       //  data: this.user
       // })
-
+      this.isLoginLoading = true // 开始有转圈圈样式
       try {
         const { data } = await login(this.user)
         console.log(data)
@@ -68,16 +73,20 @@ export default {
           this.$toast.fail('登录失败，手机号或验证码错误')
         }
       }
+      // 无论登录成功与否，都停止 loading
+      this.isLoginLoading = false // 停止有转圈圈样式
     }
   }
 }
 </script>
 
 <style lang="less" scoped>
-.login-btn {
-  padding: 20px;
-  .van-button {
-    width: 100%;
+.login {
+  .login-wrap {
+    padding: 20px;
+    .van-button {
+      width: 100%;
+    }
   }
 }
 </style>
